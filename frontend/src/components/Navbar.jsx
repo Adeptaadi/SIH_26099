@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Layers, UploadCloud, LayoutDashboard, Database, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { Layers, UploadCloud, LayoutDashboard, Database, CheckCircle2, Sun, Moon, BarChart2, ShieldAlert } from 'lucide-react';
 
 export default function Navbar() {
   const [theme, setTheme] = useState(() => {
@@ -40,6 +40,22 @@ export default function Navbar() {
         >
           <LayoutDashboard size={18} />
           <span>Dashboard</span>
+        </NavLink>
+
+        <NavLink
+          to="/evaluation"
+          className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
+        >
+          <BarChart2 size={18} />
+          <span>Evaluation Metrics</span>
+        </NavLink>
+
+        <NavLink
+          to="/hard-negatives"
+          className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
+        >
+          <ShieldAlert size={18} />
+          <span>Hard Negatives</span>
         </NavLink>
 
         <NavLink

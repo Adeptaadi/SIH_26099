@@ -85,3 +85,27 @@ export async function getMaterials(organizationId) {
   }
   return response.json();
 }
+
+export async function getEvaluationMetrics() {
+  const response = await fetch(`${API_BASE_URL}/evaluation/metrics`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch evaluation metrics');
+  }
+  return response.json();
+}
+
+export async function getAblationStudy() {
+  const response = await fetch(`${API_BASE_URL}/evaluation/ablation`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch ablation study');
+  }
+  return response.json();
+}
+
+export async function getHardNegatives() {
+  const response = await fetch(`${API_BASE_URL}/demo/hard-negatives`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch hard negative demos');
+  }
+  return response.json();
+}

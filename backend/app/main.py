@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import engine, Base
-from app.routes import health, materials, matching, reviews, common_materials
+from app.routes import health, materials, matching, reviews, common_materials, evaluation
 
 # Create DB tables automatically
 Base.metadata.create_all(bind=engine)
@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="AI-Powered Material Master Harmonization API",
     version="1.0.0",
-    description="Backend API for material upload, AI matching, review workflows, and canonical common material catalog."
+    description="Backend API for material upload, AI matching, review workflows, evaluation metrics, and canonical common material catalog."
 )
 
 # Enable CORS for React frontend
@@ -30,3 +30,4 @@ app.include_router(materials.router, prefix="/api")
 app.include_router(matching.router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
 app.include_router(common_materials.router, prefix="/api")
+app.include_router(evaluation.router, prefix="/api")
