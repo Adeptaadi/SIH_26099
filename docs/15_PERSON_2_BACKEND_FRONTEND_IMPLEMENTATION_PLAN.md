@@ -1,142 +1,76 @@
-# SIH26099 — Person 2 Implementation Plan
-## Backend + Frontend Engineer
+# SIH26099 — Person 2 (Backend + Frontend) Implementation Plan (Upgrades)
+## Upgrade Focus: Rich UI Visualizations, Dynamic API metrics, and Retrieval Demonstrations
 
-## Responsibility
-Build:
-```text
-Upload → Process → Match → Dashboard → Inspect
-→ Approve/Reject → Common Material
-```
+This document details the step-by-step implementation plan for **Person 2** to integrate and visualize the new pipeline metrics, ablation studies, and technical explainability features.
 
-## Ownership
-`backend/`, `frontend/`
+---
 
-## Backend Structure
-```text
-backend/app/
-├── main.py
-├── routes/
-│   ├── health.py
-│   ├── materials.py
-│   ├── matching.py
-│   └── reviews.py
-├── schemas/
-├── services/
-└── db/
-    ├── database.py
-    └── models.py
-```
+## 1. Responsibilities & Deliverables
+Person 2 is responsible for:
+1. Creating Backend endpoints `/api/evaluation/metrics`, `/api/evaluation/ablation`, and `/api/demo/hard-negatives`.
+2. Enhancing the **Match Details Page** to show:
+   - A side-by-side attribute comparison table (Org A vs Org B vs Normalization status).
+   - An interactive "Decision Boundary Slider" indicating the hybrid score against thresholds.
+   - The latency breakdown chart.
+3. Building an **Evaluation Dashboard** page featuring:
+   - Performance metrics cards (Accuracy, Precision, Recall, F1).
+   - A styled 3x3 or 2x2 Confusion Matrix.
+   - An Ablation Study comparison table comparing the 4 matching methods.
+4. Implementing the **Hard Negative Demo Page** to showcase how the system handles critical parameter overrides.
 
-## Frontend Structure
-```text
-frontend/src/
-├── pages/
-│   ├── Upload.jsx
-│   ├── Dashboard.jsx
-│   ├── MatchDetails.jsx
-│   └── CommonMaterials.jsx
-├── components/
-├── services/api.js
-└── App.jsx
-```
+---
 
-## Environment
-Backend:
-```bash
-pip install fastapi uvicorn sqlalchemy pandas python-multipart
-uvicorn app.main:app --reload
-```
+## 2. Component Modifications
 
-Frontend: React + Vite.
+### A. Backend Route Extensions
+Expose new endpoints inside `backend/app/routes/`:
+* `GET /api/evaluation/metrics`: Retrieves metrics from database matches and ground truth using Person 1's evaluation engine.
+* `GET /api/evaluation/ablation`: Runs the 4 ablation methods and returns comparative statistics.
+* `GET /api/demo/hard-negatives`: Pulls hard negative query matches (e.g. grade mismatches, size mismatches) from the DB to show on the demo page.
 
-## Database
-Use SQLite for the MVP:
-- materials
-- matches
-- reviews
-- common_materials
+### B. Frontend Page Enhancements
+* **Match Details page (`MatchDetails.jsx`)**:
+  - Replace the text-based summary with a comparative table.
+  - Add a visual threshold timeline showing the score pointer.
+  - Include a latency bar breakdown using pure CSS bars or simple flex graphs.
+* **Evaluation Dashboard (`Dashboard.jsx` or new `Evaluation.jsx` page)**:
+  - Grid of metrics.
+  - Interactive grid representing the Confusion Matrix.
+  - Table comparison for the Ablation Study.
+* **Hard Negative Demo (`HardNegativesDemo.jsx`)**:
+  - A dashboard presenting the "Semantic vs Technical Mismatch" cases.
 
-## APIs
-Implement:
-- GET `/api/health`
-- POST `/api/materials/upload`
-- POST `/api/matching/run`
-- GET `/api/matches`
-- GET `/api/matches/{match_id}`
-- POST `/api/matches/{match_id}/review`
-- GET `/api/common-materials`
+---
 
-## ML Integration
-Call Person 1's:
-```python
-find_matches(materials_a, materials_b)
-```
+## 3. Step-by-Step Implementation Steps
 
-Do not reproduce ML logic in the backend.
+### Step 1: Implement Backend Endpoints
+* **Files**: `backend/app/routes/matching.py` (or new route file)
+* Build the `/api/evaluation/metrics` route:
+  - Fetches all database matches and references `data/ground_truth/ground_truth.csv`.
+  - Invokes `compute_evaluation_metrics` and returns the JSON payload.
+* Build the `/api/evaluation/ablation` route:
+  - Invokes the ablation runner and returns scores.
+* Build the `/api/demo/hard-negatives` route:
+  - Filters matches in the DB where `classification == 'DIFFERENT'` and `is_overridden == True` and returns them.
 
-## Upload
-Accept:
-- file
-- organization_id
+### Step 2: Implement Side-by-Side Comparison UI
+* **File**: `frontend/src/pages/MatchDetails.jsx`
+* Create a table comparing attributes from Org A and Org B:
+  - Columns: Attribute Name, Org A Value, Org B Value, Compatibility Status (✓ Match, ✓ Normalized Match, ✗ Mismatch).
+* Render a custom slider bar showing boundaries:
+  - Boundaries at 0.60 and 0.85. Place the candidate score on the slider using colors (red, orange, green).
 
-Validate CSV, required columns, duplicates, empty files and invalid rows.
+### Step 3: Implement Confusion Matrix and Ablation Visuals
+* **File**: `frontend/src/pages/Dashboard.jsx` (add tabs or link to a new page)
+* Add a Confusion Matrix grid:
+  - Renders a styled 2x2 grid representing TP, FP, TN, FN with counts and color density.
+* Render the Ablation Table:
+  - Table headers: Method, Precision, Recall, F1-Score.
+  - Highlight the Hybrid System method row.
 
-## Review
-Accept:
-```json
-{"decision":"APPROVED"}
-```
-or:
-```json
-{"decision":"REJECTED"}
-```
+---
 
-Persist decision and update status.
-
-## Common Material
-After an approved equivalent match, create a common-material record.
-
-## UI
-Routes:
-- `/upload`
-- `/dashboard`
-- `/matches/:id`
-- `/common-materials`
-
-Upload page: two CSV inputs + Run Matching.
-
-Dashboard: total, equivalent, review, different + result table.
-
-Match detail: both descriptions, attribute comparison, confidence, scores, explanation and review actions.
-
-Common materials: ID, canonical description, attributes and source records.
-
-## API Layer
-Create `frontend/src/services/api.js` with:
-- uploadMaterials()
-- runMatching()
-- getMatches()
-- getMatch()
-- reviewMatch()
-- getCommonMaterials()
-
-## Two-Day Schedule
-### Day 1
-0–2h: FastAPI + SQLite + health
-2–5h: material model + upload + validation
-5–7h: React + routing + upload page
-7–10h: dashboard + results
-
-### Day 2
-10–13h: matching API + ML integration
-13–15h: match list/detail APIs
-15–17h: match-detail UI
-17–19h: review + common materials
-19–21h: end-to-end integration
-Remaining: UI polish + bugs
-
-## Do Not Build
-Authentication, RBAC, multi-tenancy, PostgreSQL, Redis, Kafka, background jobs, ERP/SAP integration, mobile app, admin panel or advanced analytics.
-
-## Success Criterion
-A user can upload two organization files, run matching, inspect results, understand reasoning, approve/reject a match and see approved records as common materials.
+## 4. Verification Plan
+* Start backend server: `uvicorn app.main:app` and curl the `/api/evaluation/metrics` endpoint.
+* Open Vite frontend: `npm run dev`, navigate to the pages, and verify tables, charts, and values are fully dynamic and match.

@@ -1,138 +1,90 @@
-# SIH26099 — Person 1 Implementation Plan
-## AI/ML + Data Engineer
+# SIH26099 — Person 1 (AI/ML + Data) Implementation Plan (Upgrades)
+## Upgrade Focus: Explainability, Retrieval Rigor, and Evaluation Dashboards
 
-## Responsibility
-Build:
-```text
-Raw Description → Normalization → Attribute Extraction
-→ Embedding → Candidate Retrieval → Technical Comparison
-→ Hybrid Score → Classification → Explanation
-```
+This document details the step-by-step implementation plan for **Person 1** to incorporate technical explainability, ablation statistics, evaluation metrics, and latency instrumentation into the matching system.
 
-## Ownership
-`data/`, `ml/`, `scripts/`
+---
 
-Recommended:
-```text
-data/
-├── canonical_materials.csv
-├── organization_a.csv
-├── organization_b.csv
-└── ground_truth.csv
+## 1. Responsibilities & Deliverables
+Person 1 is responsible for:
+1. Instrumenting the pipeline with dynamic latency tracking for each execution phase.
+2. Building the evaluation engine to compute Accuracy, Precision, Recall, F1 Score, and a Confusion Matrix on the fly.
+3. Implementing the ablation study runner comparing the performance of 4 distinct matching methods.
+4. Structuring a dedicated hard-negatives query set to prove technical robustness.
+5. Exposing these modules through helper functions consumed by Person 2's backend services.
 
-ml/
-├── normalization/normalizer.py
-├── extraction/attribute_extractor.py
-├── embeddings/embedder.py
-├── retrieval/vector_search.py
-├── matching/matcher.py
-└── pipeline.py
+---
 
-scripts/generate_dataset.py
-```
+## 2. Component Modifications
 
-## Environment
-Python 3.11+.
-```bash
-python -m venv .venv
-```
-Windows:
-```powershell
-.venv\Scripts\activate
-```
-Install:
-```bash
-pip install pandas numpy scikit-learn sentence-transformers faiss-cpu pytest
-```
-
-## Dataset
-Target:
-- 30–50 canonical materials
-- 50–100 Org-A records
-- 50–100 Org-B records
-- 100–200 labelled pairs
-
-Categories: Pipes, Valves, Bearings, Fasteners, Cables.
-
-Create equivalent variants and hard negatives.
-
-## Normalizer
-Implement `normalize_description(text)`.
-
-Minimum terms:
-- SS/S.S. → STAINLESS STEEL
-- CS/C.S. → CARBON STEEL
-- SCH → SCHEDULE
-- DIA → DIAMETER
-- 2" → 2 IN
-- 50.8 MM → 2 IN
-
-## Attribute Extractor
-Implement `extract_attributes(text)` using regex, dictionaries and rules.
-
-Extract:
-- material
-- type
-- size
-- grade
-- standard
-- schedule
-- pressure_class
-
-No LLM extraction for MVP.
-
-## Embeddings
-Use `all-MiniLM-L6-v2`. Do not fine-tune.
-
-## Retrieval
-Use FAISS, default K=5.
-
-## Matching
-Implement:
-```text
-Final = 0.40 semantic + 0.40 attribute + 0.20 specification
-```
-
-Initial:
-```text
->= 0.85 → EQUIVALENT
-0.60–0.8499 → REVIEW
-< 0.60 → DIFFERENT
-```
-
-Critical mismatches require explicit rules.
-
-## Explanation
-Generate from structured comparison, not an LLM.
-
-## Final Interface
-Expose:
+### A. Pipeline Latency Instrumentation
+We will modify `ml/pipeline.py` to record execution timestamps using `time.perf_counter()`.
+Expose a breakdown dictionary in the match results:
 ```python
-find_matches(materials_a, materials_b)
+latency_metrics = {
+    "normalization_time": 0.0,
+    "extraction_time": 0.0,
+    "embedding_time": 0.0,
+    "retrieval_time": 0.0,
+    "matching_time": 0.0,
+    "total_time": 0.0
+}
 ```
 
-Return the exact `MatchResult` contract.
+### B. Evaluation Engine
+We will implement a helper class/function `ml/evaluation/evaluator.py`:
+* **Function**: `compute_evaluation_metrics(db_matches, ground_truth)`
+* **Output**:
+  - Precision, Recall, F1-Score, and Accuracy.
+  - **Confusion Matrix counts**:
+    - True positives, True negatives, False positives, False negatives.
+    - True `REVIEW` and `DIFFERENT` mappings.
 
-## Two-Day Schedule
-### Day 1
-0–2h: environment + dataset
-2–4h: normalization
-4–7h: attribute extraction
-7–10h: embeddings + FAISS
+### C. Ablation Runner
+We will implement an ablation configuration engine in `ml/matching/ablation.py`:
+* Runs the matching dataset through 4 pipeline methods:
+  1. **Method 1 (Exact Match)**: Case-insensitive raw string matching.
+  2. **Method 2 (Semantic Only)**: Threshold checks based strictly on SentenceTransformer cosine similarity.
+  3. **Method 3 (Semantic + Basic Attributes)**: Semantic score + attribute matching without critical overrides.
+  4. **Method 4 (Hybrid System)**: Our full pipeline (Semantic + Attributes + Specification Rules + Critical overrides).
+* Returns a dictionary comparing the F1-scores, Precisions, and Recalls of all 4 methods.
 
-### Day 2
-10–13h: matcher
-13–15h: classification + critical rules + explanation
-15–17h: end-to-end pipeline
-17–19h: evaluation
-19–21h: backend integration
-Remaining: bugs + threshold tuning
+---
 
-## Deliverables
-`data/`, `ml/`, `scripts/`, `requirements.txt`, ML README.
+## 3. Step-by-Step Implementation Steps
 
-## Do Not Build
-React/UI, authentication, database CRUD, FastAPI routes, ERP/SAP integration, production deployment, LLM chatbot or fine-tuning.
+### Step 1: Add Latency Instrumentations
+* **File**: `ml/pipeline.py`
+* Instrument the `find_matches` pipeline:
+  - Time the normalization step.
+  - Time the `MaterialEmbedder.embed` calls.
+  - Time the `VectorIndex.search` calls.
+  - Time the detailed `match_materials` calls.
+  - Return the latency breakdown dictionary in the pipeline response.
 
-## Success Criterion
-Given two material sets, return ranked candidate matches with classification, confidence, matched attributes, differences and explanation.
+### Step 2: Build the Evaluation Engine
+* **File**: `ml/evaluation/evaluator.py`
+* Build the metrics calculator. Compare the predicted classifications from the database against labels in `ground_truth.csv`:
+  - Map predicted `EQUIVALENT` and `REVIEW` to positive, `DIFFERENT` to negative (or build a 3x3 multi-class confusion matrix).
+  - Calculate actual counts for: `True Positive`, `False Positive`, `True Negative`, `False Negative`.
+
+### Step 3: Implement the Ablation Study Runner
+* **File**: `ml/matching/ablation.py`
+* Write the ablation runner that executes the 4 configurations on the evaluation pairs:
+  - Method 1: Matches only if `normalize_description(a) == normalize_description(b)`.
+  - Method 2: Matches if `semantic_score >= 0.85` (ignores attributes/mismatches).
+  - Method 3: Matches if `0.5 * semantic_score + 0.5 * attribute_score >= 0.85`.
+  - Method 4: Full hybrid pipeline with critical attribute overrides.
+
+### Step 4: Write Unit Tests
+* **File**: `tests/test_evaluation.py` and `tests/test_ablation.py`
+* Verify that:
+  - Latency tracking does not raise exceptions.
+  - Evaluation metrics are computed mathematically correctly.
+  - Ablation runner returns scores for all 4 configurations.
+
+---
+
+## 4. Verification Plan
+* Run `python -m pytest tests/` to confirm all code compiles and passes test verification.
+* Execute `python -m scripts.evaluate_model` to verify that performance values compile.
