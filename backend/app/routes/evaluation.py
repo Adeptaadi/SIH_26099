@@ -14,8 +14,8 @@ def get_metrics(db: Session = Depends(get_db)):
     return compute_evaluation_metrics(db=db)
 
 @router.get("/evaluation/ablation")
-def get_ablation():
-    return get_ablation_metrics()
+def get_ablation(db: Session = Depends(get_db)):
+    return get_ablation_metrics(db=db)
 
 @router.get("/demo/hard-negatives")
 def get_hard_negatives(db: Session = Depends(get_db)):

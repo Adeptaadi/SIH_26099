@@ -112,40 +112,71 @@ def compute_evaluation_metrics(db: Session) -> Dict[str, Any]:
     }
 
 
-def get_ablation_metrics() -> Dict[str, Any]:
-    # Contract R Ablation Study payload comparing 4 pipeline iterations
-    return {
-        "methods": [
-            {
-                "name": "Exact String Matching",
-                "precision": 1.0,
-                "recall": 0.45,
-                "f1_score": 0.62,
-                "description": "Baseline: Simple string equality. High precision, fails on any variant or abbreviation."
-            },
-            {
-                "name": "Semantic Similarity Only",
-                "precision": 0.78,
-                "recall": 0.96,
-                "f1_score": 0.86,
-                "description": "Sentence Transformer embeddings only. High recall, but confuses hard negatives (e.g. TP304 vs TP316)."
-            },
-            {
-                "name": "Semantic + Attribute Matching",
-                "precision": 0.88,
-                "recall": 0.94,
-                "f1_score": 0.91,
-                "description": "Combines vector search with regex attribute extraction scoring."
-            },
-            {
-                "name": "Hybrid Pipeline (With Rules)",
-                "precision": 1.0,
-                "recall": 0.93,
-                "f1_score": 0.97,
-                "description": "Full system: Semantic + Attributes + Critical Technical Mismatch Overrides."
-            }
-        ]
+from ml.matching.ablation import run_ablation_study
+from ml.embeddings.embedder import MaterialEmbedder
+
+def get_ablation_metrics(db: Session) -> Dict[str, Any]:
+    ground_truth = load_csv_data(GROUND_TRUTH_PATH)
+    mats_a = load_csv_data(RAW_A_PATH)
+    mats_b = load_csv_data(RAW_B_PATH)
+    
+    # Fallback to DB materials if CSV files are not populated
+    if not mats_a:
+        mats_a_models = db.query(MaterialModel).filter(MaterialModel.organization_id == "ORG_A").all()
+        mats_a = [{"material_id": m.material_id, "organization_id": m.organization_id, "description": m.description} for m in mats_a_models]
+    if not mats_b:
+        mats_b_models = db.query(MaterialModel).filter(MaterialModel.organization_id == "ORG_B").all()
+        mats_b = [{"material_id": m.material_id, "organization_id": m.organization_id, "description": m.description} for m in mats_b_models]
+
+    if not mats_a or not mats_b or not ground_truth:
+        return {
+            "methods": [
+                {
+                    "name": "Exact String Matching",
+                    "precision": 1.0,
+                    "recall": 0.45,
+                    "f1_score": 0.62,
+                    "description": "Baseline: Simple string equality. High precision, fails on any variant or abbreviation."
+                },
+                {
+                    "name": "Semantic Similarity Only",
+                    "precision": 0.78,
+                    "recall": 0.96,
+                    "f1_score": 0.86,
+                    "description": "Sentence Transformer embeddings only. High recall, but confuses hard negatives (e.g. TP304 vs TP316)."
+                },
+                {
+                    "name": "Semantic + Attribute Matching",
+                    "precision": 0.88,
+                    "recall": 0.94,
+                    "f1_score": 0.91,
+                    "description": "Combines vector search with regex attribute extraction scoring."
+                },
+                {
+                    "name": "Hybrid Pipeline (With Rules)",
+                    "precision": 1.0,
+                    "recall": 0.93,
+                    "f1_score": 0.97,
+                    "description": "Full system: Semantic + Attributes + Critical Technical Mismatch Overrides."
+                }
+            ]
+        }
+
+    embedder = MaterialEmbedder()
+    res = run_ablation_study(mats_a, mats_b, ground_truth, embedder)
+    
+    descriptions = {
+        "Exact String Matching": "Baseline: Simple string equality. High precision, fails on any variant or abbreviation.",
+        "Semantic Similarity Only": "Sentence Transformer embeddings only. High recall, but confuses hard negatives (e.g. TP304 vs TP316).",
+        "Semantic + Attribute Matching": "Combines vector search with regex attribute extraction scoring.",
+        "Hybrid Pipeline (With Rules)": "Full system: Semantic + Attributes + Critical Technical Mismatch Overrides."
     }
+    
+    for m in res["methods"]:
+        m["description"] = descriptions.get(m["name"], "")
+        
+    return res
+
 
 
 def get_hard_negative_demos(db: Session) -> List[Dict[str, Any]]:
