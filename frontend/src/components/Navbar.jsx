@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Layers, UploadCloud, LayoutDashboard, Database, CheckCircle2 } from 'lucide-react';
+import { Layers, UploadCloud, LayoutDashboard, Database, CheckCircle2, Sun, Moon } from 'lucide-react';
 
 export default function Navbar() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('sih_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sih_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   return (
     <nav className="navbar">
       <NavLink to="/dashboard" className="brand">
@@ -38,9 +51,29 @@ export default function Navbar() {
         </NavLink>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#10b981' }}>
-        <CheckCircle2 size={14} />
-        <span>System Ready</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun size={16} color="#f59e0b" />
+              <span>Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon size={16} color="#6366f1" />
+              <span>Dark Mode</span>
+            </>
+          )}
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--success)', fontWeight: 600 }}>
+          <CheckCircle2 size={14} />
+          <span>System Online</span>
+        </div>
       </div>
     </nav>
   );

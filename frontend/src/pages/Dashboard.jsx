@@ -91,7 +91,7 @@ export default function Dashboard() {
       {/* KPI Metrics */}
       <div className="metrics-grid">
         <div className="metric-card">
-          <div className="metric-icon" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}>
+          <div className="metric-icon" style={{ background: 'var(--primary-glow)', color: 'var(--primary)' }}>
             <LayoutDashboard size={24} />
           </div>
           <div>
@@ -101,7 +101,7 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-card">
-          <div className="metric-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+          <div className="metric-icon" style={{ background: 'var(--success-bg)', color: 'var(--success)' }}>
             <CheckCircle2 size={24} />
           </div>
           <div>
@@ -111,7 +111,7 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-card">
-          <div className="metric-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+          <div className="metric-icon" style={{ background: 'var(--warning-bg)', color: 'var(--warning)' }}>
             <AlertTriangle size={24} />
           </div>
           <div>
@@ -121,7 +121,7 @@ export default function Dashboard() {
         </div>
 
         <div className="metric-card">
-          <div className="metric-icon" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}>
+          <div className="metric-icon" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
             <XCircle size={24} />
           </div>
           <div>
@@ -133,14 +133,14 @@ export default function Dashboard() {
 
       {/* Controls & Filter Bar */}
       <div className="card" style={{ marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', padding: '0.5rem 1rem', borderRadius: '8px', flex: '1', minWidth: '260px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-input)', padding: '0.5rem 1rem', borderRadius: '8px', flex: '1', minWidth: '260px' }}>
           <Search size={18} color="var(--text-muted)" />
           <input
             type="text"
             placeholder="Search material description or ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%', fontSize: '0.9rem' }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', outline: 'none', width: '100%', fontSize: '0.9rem' }}
           />
         </div>
 
@@ -166,12 +166,12 @@ export default function Dashboard() {
           <p style={{ color: 'var(--text-muted)' }}>Loading harmonization matches...</p>
         </div>
       ) : error ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem', color: '#ef4444' }}>
+        <div className="card" style={{ textAlign: 'center', padding: '3rem', color: 'var(--danger)' }}>
           <p>Failed to load matches: {error}</p>
         </div>
       ) : filteredMatches.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-          <h3 style={{ color: '#fff', marginBottom: '0.5rem' }}>No Matches Found</h3>
+          <h3 style={{ color: 'var(--text-heading)', marginBottom: '0.5rem' }}>No Matches Found</h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
             Upload inventory files or adjust your classification filter.
           </p>
@@ -198,14 +198,14 @@ export default function Dashboard() {
                 return (
                   <tr key={m.match_id}>
                     <td>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{m.material_a_id}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-heading)' }}>{m.material_a_id}</div>
                       <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {m.material_a?.description || 'N/A'}
                       </div>
                     </td>
 
                     <td>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{m.material_b_id}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-heading)' }}>{m.material_b_id}</div>
                       <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {m.material_b?.description || 'N/A'}
                       </div>
@@ -219,7 +219,7 @@ export default function Dashboard() {
 
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ flex: '1', height: '6px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '3px', overflow: 'hidden', minWidth: '60px' }}>
+                        <div style={{ flex: '1', height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden', minWidth: '60px' }}>
                           <div
                             style={{
                               width: `${confPct}%`,
@@ -229,7 +229,7 @@ export default function Dashboard() {
                             }}
                           />
                         </div>
-                        <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff' }}>{confPct}%</span>
+                        <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-heading)' }}>{confPct}%</span>
                       </div>
                     </td>
 

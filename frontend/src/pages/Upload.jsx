@@ -94,9 +94,9 @@ export default function Upload() {
 
       {error && (
         <div style={{
-          background: 'rgba(239, 68, 68, 0.15)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          color: '#ef4444',
+          background: 'var(--danger-bg)',
+          border: '1px solid var(--danger)',
+          color: 'var(--danger)',
           padding: '1rem',
           borderRadius: '12px',
           marginBottom: '1.5rem',
@@ -113,7 +113,7 @@ export default function Upload() {
         {/* Organization A */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', color: '#fff' }}>Organization A Dataset</h3>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--text-heading)' }}>Organization A Dataset</h3>
             <span className="badge badge-pending">ORG_A</span>
           </div>
 
@@ -130,8 +130,8 @@ export default function Upload() {
                 }
               }}
             />
-            <UploadCloud size={36} color="#6366f1" style={{ marginBottom: '0.75rem' }} />
-            <p style={{ fontWeight: 600, color: '#fff', marginBottom: '0.25rem' }}>
+            <UploadCloud size={36} color="var(--primary)" style={{ marginBottom: '0.75rem' }} />
+            <p style={{ fontWeight: 600, color: 'var(--text-heading)', marginBottom: '0.25rem' }}>
               {fileA ? fileA.name : 'Click or Drop CSV File for Org A'}
             </p>
             <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
@@ -146,11 +146,11 @@ export default function Upload() {
           )}
 
           {uploadStatusA && (
-            <div style={{ marginTop: '1rem', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}>
-              <div style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+            <div style={{ marginTop: '1rem', background: 'var(--success-bg)', border: '1px solid var(--success)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}>
+              <div style={{ color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
                 <CheckCircle size={15} /> Uploaded Successfully
               </div>
-              <div>Processed: <strong>{uploadStatusA.records_processed}</strong> records | Rejected: {uploadStatusA.records_rejected}</div>
+              <div style={{ color: 'var(--text-main)' }}>Processed: <strong>{uploadStatusA.records_processed}</strong> records | Rejected: {uploadStatusA.records_rejected}</div>
             </div>
           )}
         </div>
@@ -158,7 +158,7 @@ export default function Upload() {
         {/* Organization B */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', color: '#fff' }}>Organization B Dataset</h3>
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--text-heading)' }}>Organization B Dataset</h3>
             <span className="badge badge-pending">ORG_B</span>
           </div>
 
@@ -175,8 +175,8 @@ export default function Upload() {
                 }
               }}
             />
-            <UploadCloud size={36} color="#8b5cf6" style={{ marginBottom: '0.75rem' }} />
-            <p style={{ fontWeight: 600, color: '#fff', marginBottom: '0.25rem' }}>
+            <UploadCloud size={36} color="var(--accent)" style={{ marginBottom: '0.75rem' }} />
+            <p style={{ fontWeight: 600, color: 'var(--text-heading)', marginBottom: '0.25rem' }}>
               {fileB ? fileB.name : 'Click or Drop CSV File for Org B'}
             </p>
             <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
@@ -191,11 +191,11 @@ export default function Upload() {
           )}
 
           {uploadStatusB && (
-            <div style={{ marginTop: '1rem', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}>
-              <div style={{ color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+            <div style={{ marginTop: '1rem', background: 'var(--success-bg)', border: '1px solid var(--success)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}>
+              <div style={{ color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
                 <CheckCircle size={15} /> Uploaded Successfully
               </div>
-              <div>Processed: <strong>{uploadStatusB.records_processed}</strong> records | Rejected: {uploadStatusB.records_rejected}</div>
+              <div style={{ color: 'var(--text-main)' }}>Processed: <strong>{uploadStatusB.records_processed}</strong> records | Rejected: {uploadStatusB.records_rejected}</div>
             </div>
           )}
         </div>
@@ -206,7 +206,7 @@ export default function Upload() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <FileText size={22} color="var(--text-muted)" />
           <div>
-            <div style={{ fontWeight: 600, color: '#fff' }}>Harmonization Engine Ready</div>
+            <div style={{ fontWeight: 600, color: 'var(--text-heading)' }}>Harmonization Engine Ready</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               Runs Normalization → Attribute Extraction → Hybrid Match Pipeline
             </div>
@@ -234,7 +234,7 @@ export default function Upload() {
       </div>
 
       {matchResult && (
-        <div style={{ marginTop: '1.5rem', background: 'rgba(99, 102, 241, 0.15)', border: '1px solid var(--primary)', padding: '1rem 1.5rem', borderRadius: '12px', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ marginTop: '1.5rem', background: 'var(--primary-glow)', border: '1px solid var(--primary)', padding: '1rem 1.5rem', borderRadius: '12px', color: 'var(--text-heading)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>Matching Completed!</div>
             <div>Found <strong>{matchResult.matches_found}</strong> candidate pairs. Redirecting to dashboard...</div>
