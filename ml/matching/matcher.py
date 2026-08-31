@@ -1,3 +1,4 @@
+import time
 from ml.config import SEMANTIC_WEIGHT, ATTRIBUTE_WEIGHT, SPECIFICATION_WEIGHT
 from ml.extraction.attribute_extractor import extract_attributes
 from ml.matching.scorer import calculate_semantic_score, compare_attributes
@@ -15,12 +16,16 @@ def match_materials(material_a, material_b, emb_a, emb_b):
     Returns:
         match_result (dict): Contract E MatchResult dictionary.
     """
+    start_match = time.perf_counter()
+    
     # 1. Semantic Similarity
     semantic_score = calculate_semantic_score(emb_a, emb_b)
     
     # 2. Extract Attributes
+    start_extract = time.perf_counter()
     attrs_a = extract_attributes(material_a.get("description", ""))
     attrs_b = extract_attributes(material_b.get("description", ""))
+    extract_time_ms = (time.perf_counter() - start_extract) * 1000
     
     # 3. Compare Attributes
     matched_attributes, differences, attribute_score, specification_score = compare_attributes(attrs_a, attrs_b)
@@ -55,6 +60,9 @@ def match_materials(material_a, material_b, emb_a, emb_b):
     if classification == "DIFFERENT" and is_overridden:
         confidence = min(0.3, confidence) # cap confidence for critical mismatches
         
+    total_match_ms = (time.perf_counter() - start_match) * 1000
+    matching_time_ms = total_match_ms - extract_time_ms
+    
     return {
         "match_id": match_id,
         "material_a_id": m_a_id,
@@ -69,6 +77,9 @@ def match_materials(material_a, material_b, emb_a, emb_b):
         "matched_attributes": matched_attributes,
         "differences": differences,
         "explanation": explanation,
-        "status": "PENDING_REVIEW"
+        "status": "PENDING_REVIEW",
+        "extraction_ms": extract_time_ms,
+        "matching_ms": matching_time_ms
     }
+
 
