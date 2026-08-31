@@ -160,3 +160,48 @@ For changes to fields, types, classifications, routes or required data:
 
 ## Contract P — Version
 MVP targets Contract Version 1.0.
+
+## Contract Q — Evaluation Metrics Response
+```json
+{
+  "total_pairs": 150,
+  "accuracy": 0.9867,
+  "precision": 1.0,
+  "recall": 0.9333,
+  "f1_score": 0.9655,
+  "hard_negative_accuracy": 1.0,
+  "confusion_matrix": {
+    "true_positives": 28,
+    "false_positives": 0,
+    "true_negatives": 120,
+    "false_negatives": 2
+  }
+}
+```
+
+## Contract R — Ablation Study Response
+```json
+{
+  "methods": [
+    {"name": "Exact String Matching", "precision": 1.0, "recall": 0.45, "f1_score": 0.62},
+    {"name": "Semantic Similarity Only", "precision": 0.78, "recall": 0.96, "f1_score": 0.86},
+    {"name": "Semantic + Attribute Matching", "precision": 0.88, "recall": 0.94, "f1_score": 0.91},
+    {"name": "Hybrid Pipeline (With Rules)", "precision": 1.0, "recall": 0.93, "f1_score": 0.97}
+  ]
+}
+```
+
+## Contract S — Pipeline Latency Metrics
+```json
+{
+  "latency": {
+    "normalization_ms": 12.5,
+    "extraction_ms": 25.1,
+    "embedding_ms": 140.2,
+    "retrieval_ms": 5.4,
+    "matching_ms": 18.8,
+    "total_ms": 202.0
+  }
+}
+```
+
