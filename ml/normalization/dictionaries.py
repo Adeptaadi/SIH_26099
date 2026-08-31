@@ -1,0 +1,2 @@
+# Normalization dictionaries
+SYNONYMS = {}
