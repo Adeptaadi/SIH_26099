@@ -1,2 +1,12 @@
 # ML configurations
 MODEL_NAME = "all-MiniLM-L6-v2"
+
+# Score weights
+SEMANTIC_WEIGHT = 0.40
+ATTRIBUTE_WEIGHT = 0.40
+SPECIFICATION_WEIGHT = 0.20
+
+# Classification thresholds
+THRESHOLD_EQUIVALENT = 0.85
+THRESHOLD_REVIEW = 0.60
+
